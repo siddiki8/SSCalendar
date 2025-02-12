@@ -104,9 +104,8 @@ export default function SundayGrid() {
   useEffect(() => {
     if (!loading && currentMonthRef.current) {
       setTimeout(() => {
-        const topOffset = currentMonthRef.current?.offsetTop ?? 0
         window.scrollTo({
-          top: topOffset - 20,
+          top: currentMonthRef.current?.offsetTop - 20,
           behavior: "smooth"
         })
       }, 100)
