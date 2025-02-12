@@ -52,7 +52,7 @@ export default function EditSundayModal({ date, onClose, initialData }: EditSund
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded-lg space-y-4 max-w-md w-full">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4 max-w-md w-full dark:text-gray-100">
         <h2 className="text-xl font-bold">Edit Sunday: {date.toLocaleDateString()}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
