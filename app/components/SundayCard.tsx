@@ -17,10 +17,10 @@ export default function SundayCard({ date, status, message, messageColor }: Sund
 
   return (
     <div
-      className="border rounded-lg min-h-[160px] flex flex-col bg-white"
+      className="border rounded-lg min-h-[160px] flex flex-col bg-white overflow-hidden"
     >
       <div
-        className={`p-4 rounded-t-lg ${
+        className={`p-4 ${
           status === "closed" ? "bg-red-400" : status === "event" ? "bg-orange-400" : "bg-green-600"
         }`}
       >
