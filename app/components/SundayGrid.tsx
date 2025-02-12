@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { collection, query, onSnapshot, doc } from "firebase/firestore"
 import { db } from "../firebase/config"
 import { getSundays, getSundaysBetween } from "../utils/dateUtils"
@@ -37,6 +37,7 @@ function groupSundaysByMonth(sundays: Date[], startDate?: Date, endDate?: Date) 
 }
 
 export default function SundayGrid() {
+  const currentMonthRef = useRef<HTMLDivElement>(null)
   // Instead of hardcoding Sundays, we listen for live calendar settings.
   const [calendarDates, setCalendarDates] = useState<{ start: Date; end: Date } | null>(null)
   const sundays = calendarDates
@@ -99,6 +100,19 @@ export default function SundayGrid() {
     return () => unsubscribe()
   }, [])
 
+  // Add scroll to current month effect
+  useEffect(() => {
+    if (!loading && currentMonthRef.current) {
+      setTimeout(() => {
+        const topOffset = currentMonthRef.current?.offsetTop ?? 0
+        window.scrollTo({
+          top: topOffset - 20,
+          behavior: "smooth"
+        })
+      }, 100)
+    }
+  }, [loading])
+
   if (loading) {
     return <div className="text-center py-4">Loading calendar...</div>
   }
@@ -107,10 +121,16 @@ export default function SundayGrid() {
     return <div className="text-center py-4 text-red-500">{error}</div>
   }
 
+  const currentMonth = format(new Date(), 'MMMM yyyy')
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-4">
       {Object.entries(sundaysByMonth).map(([month, monthSundays]) => (
-        <div key={month} className="space-y-2">
+        <div 
+          key={month} 
+          className="space-y-2"
+          ref={month === currentMonth ? currentMonthRef : undefined}
+        >
           <h2 className="text-2xl font-bold px-4">{month}</h2>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {monthSundays.map((sunday) => {
