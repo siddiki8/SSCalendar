@@ -10,7 +10,20 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+  			display: ['var(--font-poppins)', 'system-ui', 'sans-serif']
+  		},
   		colors: {
+  			brand: {
+  				DEFAULT: '#084544',
+  				deep: '#06302f'
+  			},
+  			brick: '#A63D32',
+  			gold: {
+  				DEFAULT: 'hsl(var(--gold))',
+  				foreground: 'hsl(var(--gold-foreground))'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

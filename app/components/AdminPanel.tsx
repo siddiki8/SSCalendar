@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react"
 import { collection, query, onSnapshot, doc, updateDoc, setDoc } from "firebase/firestore"
 import { db } from "../firebase/config"
-import { getSundays, getSundaysBetween } from "../utils/dateUtils"
+import { getSundays, getSundaysBetween, groupSundaysByMonth } from "../utils/dateUtils"
 import EditableSundayCard from "./EditableSundayCard"
 import EditSundayModal from "./EditSundayModal"
+import CalendarMonths from "./CalendarMonths"
+import type { SundayData } from "./SundayCalendar"
 import { DayPicker } from "react-day-picker"
 import "react-day-picker/dist/style.css"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
@@ -20,35 +22,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { format } from "date-fns"
-
-interface SundayData {
-  status?: "closed" | "event"
-  message?: string
-  messageColor?: string
-}
-
-// Helper function to group Sundays by month
-function groupSundaysByMonth(sundays: Date[], startDate?: Date, endDate?: Date) {
-  const groups: { [key: string]: Date[] } = {}
-  
-  sundays.forEach(sunday => {
-    // Skip if the sunday is before start date or after end date
-    if (
-      (startDate && sunday < startDate) ||
-      (endDate && sunday > endDate)
-    ) {
-      return
-    }
-
-    const monthKey = format(sunday, 'MMMM yyyy')
-    if (!groups[monthKey]) {
-      groups[monthKey] = []
-    }
-    groups[monthKey].push(sunday)
-  })
-  
-  return groups
-}
 
 export default function AdminPanel() {
   // Instead of using static sundays, we will either use the live calendar settings
@@ -208,11 +181,11 @@ export default function AdminPanel() {
   }
 
   if (loadingSundays || loadingSettings) {
-    return <div className="text-center py-4">Loading calendar...</div>
+    return <div className="py-10 text-center text-muted-foreground">Loading calendar…</div>
   }
 
   if (error) {
-    return <div className="text-center py-4 text-red-500">{error}</div>
+    return <div role="alert" className="py-10 text-center text-destructive">{error}</div>
   }
 
   return (
@@ -225,36 +198,30 @@ export default function AdminPanel() {
         />
       )}
       <div
-        className={`space-y-8 ${editingDate ? "opacity-50 pointer-events-none" : ""}`}
+        className={`${editingDate ? "opacity-50 pointer-events-none" : ""}`}
       >
-        {Object.entries(sundaysByMonth).map(([month, monthSundays]) => (
-          <div key={month} className="space-y-2">
-            <h2 className="text-2xl font-bold px-4">{month}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              {monthSundays.map((sunday) => {
-                const dateString = sunday.toISOString().split("T")[0]
-                const data = sundayData[dateString] || {}
-                return (
-                  <EditableSundayCard
-                    key={dateString}
-                    date={sunday}
-                    status={data.status}
-                    message={data.message}
-                    messageColor={data.messageColor}
-                    onEditClick={() => handleEditClick(sunday)}
-                    isActive={editingDate ? sunday.toDateString() === editingDate.toDateString() : false}
-                  />
-                )
-              })}
-            </div>
-          </div>
-        ))}
+        <CalendarMonths
+          sundaysByMonth={sundaysByMonth}
+          renderCard={(sunday, dateString) => {
+            const data = sundayData[dateString] || {}
+            return (
+              <EditableSundayCard
+                date={sunday}
+                status={data.status}
+                message={data.message}
+                messageColor={data.messageColor}
+                onEditClick={() => handleEditClick(sunday)}
+                isActive={editingDate ? sunday.toDateString() === editingDate.toDateString() : false}
+              />
+            )
+          }}
+        />
       </div>
-      <section className="mt-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Edit Calendar</h2>
+      <section className="mt-10 rounded-xl border bg-card/60 p-6 dark:bg-secondary">
+        <h2 className="mb-4 text-xl font-semibold">Edit Calendar</h2>
         <form onSubmit={handleCalendarEditSubmit} className="space-y-4">
           <div>
-            <label className="block font-medium mb-1">Select Calendar to Edit</label>
+            <label className="mb-1 block text-sm font-medium">Select Calendar to Edit</label>
             <Select
               value={selectedCalendarEdit}
               onValueChange={(val) => {
@@ -280,9 +247,9 @@ export default function AdminPanel() {
             </Select>
           </div>
           {selectedCalendarEdit && (
-            <div className="flex space-x-4">
+            <div className="flex flex-col gap-6 sm:flex-row">
               <div className="flex-1">
-                <label className="block font-medium mb-1">Start Date</label>
+                <label className="mb-1 block text-sm font-medium">Start Date</label>
                 <DayPicker
                   mode="single"
                   selected={firstSundayEdit}
@@ -297,7 +264,7 @@ export default function AdminPanel() {
                 />
               </div>
               <div className="flex-1">
-                <label className="block font-medium mb-1">End Date</label>
+                <label className="mb-1 block text-sm font-medium">End Date</label>
                 <DayPicker
                   mode="single"
                   selected={lastSundayEdit}
@@ -314,7 +281,7 @@ export default function AdminPanel() {
             </div>
           )}
           <div>
-            <Button type="submit" variant="destructive">
+            <Button type="submit">
               Save Calendar
             </Button>
           </div>
@@ -339,11 +306,11 @@ export default function AdminPanel() {
         </Dialog>
       </section>
 
-      <section className="mt-8 p-4 border rounded">
-        <h2 className="text-xl font-semibold mb-4">Set Live Calendar</h2>
+      <section className="mt-10 rounded-xl border bg-card/60 p-6 dark:bg-secondary">
+        <h2 className="mb-4 text-xl font-semibold">Set Live Calendar</h2>
         <form onSubmit={handleLiveCalendarSubmit} className="space-y-4">
           <div>
-            <label className="block font-medium mb-1">Live Calendar</label>
+            <label className="mb-1 block text-sm font-medium">Live Calendar</label>
             <Select value={liveCalendar} onValueChange={setLiveCalendar}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Select Live Calendar" />
@@ -358,7 +325,7 @@ export default function AdminPanel() {
             </Select>
           </div>
           <div>
-            <Button type="submit" variant="destructive">
+            <Button type="submit">
               Update Live Calendar
             </Button>
           </div>

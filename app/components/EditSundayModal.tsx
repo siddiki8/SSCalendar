@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { doc, setDoc } from "firebase/firestore"
 import { db } from "../firebase/config"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { getIslamicDate } from "../utils/dateUtils"
 
 interface EditSundayModalProps {
   date: Date
@@ -20,7 +22,7 @@ interface EditSundayModalProps {
 }
 
 const colorOptions = [
-  { value: "#000000", label: "Black" },   // text-black
+  { value: "#000000", label: "Default" }, // follows the card text color
   { value: "#dc2626", label: "Red" },     // text-red-600
   { value: "#ea580c", label: "Orange" },  // text-orange-600
   { value: "#16a34a", label: "Green" },   // text-green-600
@@ -51,9 +53,14 @@ export default function EditSundayModal({ date, onClose, initialData }: EditSund
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4 max-w-md w-full dark:text-gray-100">
-        <h2 className="text-xl font-bold">Edit Sunday: {date.toLocaleDateString()}</h2>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+          </DialogTitle>
+          <DialogDescription>{getIslamicDate(date)}</DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
@@ -87,7 +94,7 @@ export default function EditSundayModal({ date, onClose, initialData }: EditSund
                 {colorOptions.map((color) => (
                   <SelectItem key={color.value} value={color.value}>
                     <span 
-                      className="inline-block w-4 h-4 rounded-full mr-2" 
+                      className="inline-block w-4 h-4 rounded-full mr-2 ring-1 ring-border" 
                       style={{ backgroundColor: color.value }}
                     ></span>
                     {color.label}
@@ -96,15 +103,15 @@ export default function EditSundayModal({ date, onClose, initialData }: EditSund
               </SelectContent>
             </Select>
           </div>
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit">Save</Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
