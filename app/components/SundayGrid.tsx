@@ -15,6 +15,9 @@ export default function SundayGrid() {
 
   const [sundayData, setSundayData] = useState<Record<string, SundayData>>({})
   const [loading, setLoading] = useState(true)
+  // Stay in the loading state until the live school year is known, so the
+  // page doesn't render (and scroll) the fallback year and then reflow
+  const [loadingSettings, setLoadingSettings] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   // Listen for live calendar settings so the displayed date range updates
@@ -34,9 +37,12 @@ export default function SundayGrid() {
               end: new Date(data.end)
             })
           }
-        })
+          setLoadingSettings(false)
+        }, () => setLoadingSettings(false))
+      } else {
+        setLoadingSettings(false)
       }
-    })
+    }, () => setLoadingSettings(false))
 
     return () => {
       unsubscribeCal?.()
@@ -72,7 +78,7 @@ export default function SundayGrid() {
       sundays={sundays}
       calendarDates={calendarDates}
       sundayData={sundayData}
-      loading={loading}
+      loading={loading || loadingSettings}
       error={error}
     />
   )
