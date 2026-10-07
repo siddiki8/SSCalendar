@@ -6,6 +6,8 @@ import AdminPanel from "../components/AdminPanel"
 import LoginModal from "../components/LoginModal"
 import { useAuth } from "../context/AuthContext"
 import { ThemeToggle } from "../components/ThemeToggle"
+import SiteHeader from "../components/SiteHeader"
+import { Button } from "@/components/ui/button"
 
 export default function AdminPage() {
   const [showLogin, setShowLogin] = useState(false)
@@ -19,29 +21,20 @@ export default function AdminPage() {
   }, [user, loading])
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div className="py-10 text-center text-muted-foreground">Loading…</div>
   }
 
   return (
     <>
-      <main className="container mx-auto p-4">
-        {user ? (
-          <>
-            <div className="flex justify-between items-center mb-4">
-              <h1 className="text-3xl font-bold">Sunday School Calendar Admin</h1>
-              <div className="flex items-center gap-4">
-                <ThemeToggle />
-                <button
-                  onClick={() => router.push("/")}
-                  className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  Back to Calendar
-                </button>
-              </div>
-            </div>
-            <AdminPanel />
-          </>
-        ) : null}
+      <SiteHeader title="Calendar Admin">
+        <Button variant="outline" size="sm" onClick={() => router.push("/")}>
+          <span className="hidden sm:inline">Back to calendar</span>
+          <span className="sm:hidden">Calendar</span>
+        </Button>
+        <ThemeToggle />
+      </SiteHeader>
+      <main className="container mx-auto px-4 py-8">
+        {user ? <AdminPanel /> : null}
       </main>
       <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </>

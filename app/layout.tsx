@@ -1,12 +1,18 @@
 import "./globals.css"
-import { GeistSans } from "geist/font/sans"
+import { Inter, Poppins } from "next/font/google"
 import type React from "react"
 import { Providers } from "./providers"
 
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-poppins",
+})
+
 export const metadata = {
-  title: "Sunday School Calendar",
-  description: "Simple Calendar app for Sunday School",
-  generator: 'v0.dev'
+  title: "Sunday School Calendar | Darul Islah",
+  description: "Sunday School schedule for Darul Islah",
 }
 
 export default function RootLayout({
@@ -15,14 +21,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.className} paper-texture min-h-screen bg-white dark:bg-emerald-950 text-gray-900 dark:text-white transition-colors duration-200`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
+      <body className="font-sans min-h-screen transition-colors duration-200">
         <Providers>{children}</Providers>
       </body>
     </html>
   )
 }
-
-
-
-import './globals.css'

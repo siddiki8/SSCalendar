@@ -34,6 +34,25 @@ export function getSundaysBetween(start: Date, end: Date): Date[] {
   return sundays
 }
 
+// Group Sundays by month, dropping any outside the optional start/end range
+export function groupSundaysByMonth(sundays: Date[], startDate?: Date, endDate?: Date) {
+  const groups: { [key: string]: Date[] } = {}
+
+  sundays.forEach(sunday => {
+    if ((startDate && sunday < startDate) || (endDate && sunday > endDate)) {
+      return
+    }
+
+    const monthKey = format(sunday, 'MMMM yyyy')
+    if (!groups[monthKey]) {
+      groups[monthKey] = []
+    }
+    groups[monthKey].push(sunday)
+  })
+
+  return groups
+}
+
 export function getIslamicDate(date: Date): string {
   try {
     const { hy: year, hm: month, hd: day } = toHijri(

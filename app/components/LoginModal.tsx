@@ -63,7 +63,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <DialogTitle>Admin Login</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

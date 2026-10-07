@@ -5,7 +5,7 @@ import { AuthProvider } from "./context/AuthContext"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark">
+    <ThemeProvider attribute="class" defaultTheme="light">
       <AuthProvider>{children}</AuthProvider>
     </ThemeProvider>
   )
