@@ -2,6 +2,7 @@ import "./globals.css"
 import { Inter, Poppins } from "next/font/google"
 import type React from "react"
 import { Providers } from "./providers"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const poppins = Poppins({
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
       <body className="font-sans min-h-screen transition-colors duration-200">
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   )
